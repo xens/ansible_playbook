@@ -1,0 +1,25 @@
+---
+- hosts: cumuluslab
+
+  user: cumulus
+  become: true
+  
+  tasks:
+  - name: Install basic programms
+    apt: update_cache=yes name=vim-common state=present  
+
+  - name: Provision my pubkey
+ 
+    authorized_key:
+      user: cumulus
+      key: "{{ lookup('file', '/home/xens/.ssh/id_rsa.pub') }}"
+      manage_dir: no
+
+  - name: Ensure user Cumulus has right do to sudo without password
+
+    lineinfile: 
+      dest: /etc/sudoers 
+      state: present 
+      regexp: '^cumulus' 
+      line: 'cumulus ALL=(ALL) NOPASSWD: ALL' 
+      validate: 'visudo -cf %s'
